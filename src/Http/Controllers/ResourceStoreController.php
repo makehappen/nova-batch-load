@@ -29,6 +29,7 @@ class ResourceStoreController extends Controller
         $this->validateForCreation($request, $resource);
 
         DB::transaction(function () use ($request, $resource) {
+            $mainRequest = clone $request;
             foreach ($request->data as $key => $array) {
                 $request->replace($array);
 
@@ -36,9 +37,9 @@ class ResourceStoreController extends Controller
                     $request, $resource::newModel()
                 );
 
-                if ($request->viaRelationship()) {
-                    $request->findParentModelOrFail()
-                        ->{$request->viaRelationship}()
+                if ($mainRequest->viaRelationship()) {
+                    $mainRequest->findParentModelOrFail()
+                        ->{$mainRequest->viaRelationship}()
                         ->save($model);
                 } else {
                     $model->save();
